@@ -1,0 +1,37 @@
+@import "tailwindcss";
+@plugin "tailwindcss-animate";
+@config "../../tailwind.config.ts";
+@source "../../src";
+
+:root {
+  --background: #030014;
+  --foreground: #ffffff;
+
+  --primary: #7000ff;
+  --primary-foreground: #ffffff;
+
+  --secondary: #00f0ff;
+  --secondary-foreground: #000000;
+
+  --accent: #f43f5e;
+  --accent-foreground: #ffffff;
+
+  --muted: #1a1a2e;
+  --muted-foreground: #a0a0a0;
+
+  --card: #0f0c29;
+  --card-foreground: #ffffff;
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: Arial, Helvetica, sans-serif;
+  overflow-x: hidden;
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
