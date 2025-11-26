@@ -3,8 +3,28 @@
 import SectionWrapper from "@/components/layout/SectionWrapper";
 import { motion } from "framer-motion";
 import { Mail, MapPin, Phone, Send } from "lucide-react";
+import { sendEmail } from "@/actions/sendEmail";
+import { toast } from "sonner";
+import { useState } from "react";
 
 export default function Contact() {
+    const [pending, setPending] = useState(false);
+
+    const handleSubmit = async (formData: FormData) => {
+        setPending(true);
+        const result = await sendEmail(formData);
+        setPending(false);
+
+        if (result.error) {
+            toast.error(result.error);
+        } else {
+            toast.success(result.success);
+            // Optional: Reset form
+            const form = document.querySelector("form") as HTMLFormElement;
+            form?.reset();
+        }
+    };
+
     return (
         <SectionWrapper id="contact" className="bg-black">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
@@ -57,13 +77,15 @@ export default function Contact() {
                     viewport={{ once: true }}
                     className="bg-card p-8 rounded-2xl border border-white/10"
                 >
-                    <form className="space-y-6">
+                    <form action={handleSubmit} className="space-y-6">
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                             <div className="space-y-2">
                                 <label htmlFor="name" className="text-sm font-medium text-gray-300">Name</label>
                                 <input
                                     type="text"
                                     id="name"
+                                    name="name"
+                                    required
                                     className="w-full bg-muted border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-primary transition-colors"
                                     placeholder="John Doe"
                                 />
@@ -73,6 +95,8 @@ export default function Contact() {
                                 <input
                                     type="email"
                                     id="email"
+                                    name="email"
+                                    required
                                     className="w-full bg-muted border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-primary transition-colors"
                                     placeholder="john@example.com"
                                 />
@@ -83,6 +107,8 @@ export default function Contact() {
                             <input
                                 type="text"
                                 id="subject"
+                                name="subject"
+                                required
                                 className="w-full bg-muted border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-primary transition-colors"
                                 placeholder="Project Inquiry"
                             />
@@ -91,6 +117,8 @@ export default function Contact() {
                             <label htmlFor="message" className="text-sm font-medium text-gray-300">Message</label>
                             <textarea
                                 id="message"
+                                name="message"
+                                required
                                 rows={4}
                                 className="w-full bg-muted border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-primary transition-colors resize-none"
                                 placeholder="Tell us about your project..."
@@ -98,9 +126,10 @@ export default function Contact() {
                         </div>
                         <button
                             type="submit"
-                            className="w-full bg-primary text-white font-bold py-4 rounded-lg hover:bg-primary/90 transition-colors flex items-center justify-center gap-2"
+                            disabled={pending}
+                            className="w-full bg-primary text-white font-bold py-4 rounded-lg hover:bg-primary/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                            Send Message <Send className="w-4 h-4" />
+                            {pending ? "Sending..." : "Send Message"} <Send className="w-4 h-4" />
                         </button>
                     </form>
                 </motion.div>
