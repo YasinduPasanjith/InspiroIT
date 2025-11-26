@@ -2,7 +2,7 @@
 
 import SectionWrapper from "@/components/layout/SectionWrapper";
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
-import { Code, Layout, Smartphone, MousePointer2, PenTool } from "lucide-react";
+import { Code, Layout, Smartphone, MousePointer2, PenTool, Share2 } from "lucide-react";
 import React, { useRef } from "react";
 
 const services = [
@@ -19,9 +19,15 @@ const services = [
         color: "from-purple-500 to-pink-500",
     },
     {
+        title: "Mobile App Development",
+        description: "Native and cross-platform mobile apps that provide seamless user experiences.",
+        icon: Smartphone,
+        color: "from-indigo-500 to-violet-500",
+    },
+    {
         title: "Social Media Handling",
         description: "Strategic social media management to boost your brand presence and engagement.",
-        icon: Smartphone,
+        icon: Share2,
         color: "from-orange-500 to-red-500",
     },
     {
