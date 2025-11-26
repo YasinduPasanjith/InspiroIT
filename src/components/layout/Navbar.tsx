@@ -46,7 +46,7 @@ export default function Navbar() {
                                 alt="InspiroIT Logo"
                                 width={500}
                                 height={500}
-                                className="h-10 w-auto object-contain"
+                                className="h-16 w-auto object-contain"
                                 priority
                             />
                             <span className="text-xl font-bold text-primary tracking-tighter">
