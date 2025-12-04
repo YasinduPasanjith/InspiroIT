@@ -12,6 +12,8 @@ type Project = {
   image: string;
   description: string;
   tech?: string[];
+  live?: string;
+  github?: string;
 };
 
 const projects: Project[] = [
@@ -21,6 +23,8 @@ const projects: Project[] = [
     image: "/yasindu_portfolio.png",
     description: "Real-time financial data visualization platform for modern finance teams.",
     tech: ["Next.js", "Tailwind", "Framer Motion"],
+    live: "https://yasindupasanjith.vercel.app/",
+    github: "#",
   },
   {
     title: "E-Commerce AI",
@@ -28,6 +32,8 @@ const projects: Project[] = [
     image: "https://i.pinimg.com/736x/72/f2/63/72f263964ad7d25c06b4f5d52f771919.jpg",
     description: "AI-powered recommendation engine that boosts cart value and retention.",
     tech: ["Python", "TensorFlow", "Node.js"],
+    live: "#",
+    github: "#",
   },
   {
     title: "HealthTech App",
@@ -35,6 +41,8 @@ const projects: Project[] = [
     image: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d",
     description: "Patient monitoring and telemedicine experience for remote care.",
     tech: ["Flutter", "Firebase"],
+    live: "#",
+    github: "#",
   },
   {
     title: "Crypto Exchange",
@@ -42,6 +50,8 @@ const projects: Project[] = [
     image: "https://images.unsplash.com/photo-1621761191319-c6fb62004040",
     description: "Secure and fast cryptocurrency trading platform for power users.",
     tech: ["React", "WebSockets", "PostgreSQL"],
+    live: "#",
+    github: "#",
   },
   {
     title: "Analytics Studio",
@@ -49,6 +59,8 @@ const projects: Project[] = [
     image: "https://images.unsplash.com/photo-1553877522-43269d4ea984",
     description: "Self-serve analytics for product and growth teams.",
     tech: ["Next.js", "Supabase"],
+    live: "#",
+    github: "#",
   },
   {
     title: "Brand Experience Site",
@@ -56,6 +68,8 @@ const projects: Project[] = [
     image: "https://images.unsplash.com/photo-1545239351-1141bd82e8a6",
     description: "Interactive storytelling website for a modern brand.",
     tech: ["GSAP", "Three.js"],
+    live: "#",
+    github: "#",
   },
 ];
 
@@ -82,8 +96,15 @@ type ProjectCardProps = {
   index: number;
 };
 
+// Helper to check if link is valid
+const hasValidLink = (url?: string) =>
+  url && url.trim() !== "" && url.trim() !== "#";
+
 // Memoized card → avoids re-render unless props change
 const ProjectCard = memo(function ProjectCard({ project, index }: ProjectCardProps) {
+  const hasLive = hasValidLink(project.live);
+  const hasGithub = hasValidLink(project.github);
+
   return (
     <motion.div
       custom={index}
@@ -100,11 +121,8 @@ const ProjectCard = memo(function ProjectCard({ project, index }: ProjectCardPro
             src={project.image}
             alt={project.title}
             fill
-            // Let Next optimize for better perf & caching
             sizes="(min-width:1024px) 33vw, (min-width:640px) 50vw, 100vw"
             className="object-cover transition-transform duration-500 group-hover:scale-105 group-hover:rotate-[0.5deg]"
-            // If you still get 500s from /_next/image, add: unoptimized
-            // unoptimized
             priority={index === 0} // only first card is priority
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-transparent" />
@@ -137,13 +155,45 @@ const ProjectCard = memo(function ProjectCard({ project, index }: ProjectCardPro
             )}
 
             <div className="mt-4 flex gap-3">
-              <button className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3.5 py-1.5 text-xs font-medium text-gray-100 backdrop-blur-sm transition hover:-translate-y-0.5 hover:bg-primary hover:text-black hover:shadow-lg hover:shadow-primary/40">
-                <ExternalLink className="h-3.5 w-3.5" />
-                Live
-              </button>
-              <button className="inline-flex items-center justify-center rounded-full border border-white/15 bg-white/10 p-1.5 text-gray-200 backdrop-blur-sm transition hover:-translate-y-0.5 hover:bg-white hover:text-black hover:shadow-lg hover:shadow-white/40">
-                <Github className="h-4 w-4" />
-              </button>
+              {/* Live button */}
+              {hasLive ? (
+                <a
+                  href={project.live}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3.5 py-1.5 text-xs font-medium text-gray-100 backdrop-blur-sm transition hover:-translate-y-0.5 hover:bg-primary hover:text-black hover:shadow-lg hover:shadow-primary/40"
+                >
+                  <ExternalLink className="h-3.5 w-3.5" />
+                  Live
+                </a>
+              ) : (
+                <button
+                  className="inline-flex cursor-not-allowed items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3.5 py-1.5 text-xs font-medium text-gray-500 opacity-60"
+                  disabled
+                >
+                  <ExternalLink className="h-3.5 w-3.5" />
+                  Live
+                </button>
+              )}
+
+              {/* GitHub button */}
+              {hasGithub ? (
+                <a
+                  href={project.github}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center justify-center rounded-full border border-white/15 bg-white/10 p-1.5 text-gray-200 backdrop-blur-sm transition hover:-translate-y-0.5 hover:bg-white hover:text-black hover:shadow-lg hover:shadow-white/40"
+                >
+                  <Github className="h-4 w-4" />
+                </a>
+              ) : (
+                <button
+                  className="inline-flex cursor-not-allowed items-center justify-center rounded-full border border-white/10 bg-white/5 p-1.5 text-gray-500 opacity-60"
+                  disabled
+                >
+                  <Github className="h-4 w-4" />
+                </button>
+              )}
             </div>
           </div>
         </div>
