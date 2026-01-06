@@ -2,8 +2,9 @@
 
 import SectionWrapper from "@/components/layout/SectionWrapper";
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
-import { Code, Layout, Smartphone, MousePointer2, PenTool, Share2 } from "lucide-react";
+import { Code, Layout, Smartphone, MousePointer2, PenTool, Share2, ArrowRight } from "lucide-react";
 import React, { useRef } from "react";
+import Link from "next/link";
 
 const services = [
     {
@@ -135,11 +136,28 @@ export default function Services() {
                 </motion.p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 perspective-1000">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 perspective-1000 mb-16">
                 {services.map((service, index) => (
                     <ServiceCard key={index} service={service} index={index} />
                 ))}
             </div>
+
+            <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                className="flex justify-center"
+            >
+                <Link
+                    href="/packages"
+                    className="group relative px-10 py-4 bg-gradient-to-r from-primary to-secondary text-white rounded-full font-bold overflow-hidden transition-all hover:scale-105 hover:shadow-[0_0_30px_rgba(112,0,255,0.4)]"
+                >
+                    <span className="relative z-10 flex items-center gap-2">
+                        View All Packages <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
+                    </span>
+                    <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity" />
+                </Link>
+            </motion.div>
         </SectionWrapper>
     );
 }
