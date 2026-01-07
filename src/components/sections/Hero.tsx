@@ -105,6 +105,15 @@ export default function Hero() {
 
                     <Magnetic>
                         <Link
+                            href="/packages"
+                            className="px-8 py-4 bg-white/10 backdrop-blur-sm border border-primary/30 text-white rounded-full font-bold transition-all hover:bg-white/20 hover:border-primary hover:scale-105 inline-block"
+                        >
+                            View Packages
+                        </Link>
+                    </Magnetic>
+
+                    <Magnetic>
+                        <Link
                             href="#services"
                             className="px-8 py-4 bg-white/5 backdrop-blur-sm border border-white/10 text-white rounded-full font-bold transition-all hover:bg-white/10 hover:scale-105 inline-block"
                         >
