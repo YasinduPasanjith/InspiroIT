@@ -1,12 +1,14 @@
 "use client";
 
-import { motion, useScroll, useTransform } from "framer-motion";
+import { useEffect, useRef } from "react";
 import Hero3D from "@/components/3d/Hero3D";
 import { ArrowRight, ChevronDown } from "lucide-react";
 import Link from "next/link";
 import Magnetic from "@/components/ui/Magnetic";
 import Spotlight from "@/components/ui/Spotlight";
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
 
 const GlitchText = ({ text }: { text: string }) => {
     return (
@@ -22,45 +24,51 @@ const GlitchText = ({ text }: { text: string }) => {
     );
 };
 
-const TypewriterText = ({ text, delay = 0 }: { text: string; delay?: number }) => {
-    const [displayText, setDisplayText] = useState("");
-
-    useEffect(() => {
-        const timeout = setTimeout(() => {
-            let currentText = "";
-            let currentIndex = 0;
-
-            const interval = setInterval(() => {
-                if (currentIndex < text.length) {
-                    currentText += text[currentIndex];
-                    setDisplayText(currentText);
-                    currentIndex++;
-                } else {
-                    clearInterval(interval);
-                }
-            }, 100);
-
-            return () => clearInterval(interval);
-        }, delay);
-
-        return () => clearTimeout(timeout);
-    }, [text, delay]);
-
-    return <span>{displayText}</span>;
-};
-
 export default function Hero() {
+    const container = useRef<HTMLDivElement>(null);
+    const titleRef = useRef<HTMLDivElement>(null);
+    const textRef = useRef<HTMLParagraphElement>(null);
+    const buttonsRef = useRef<HTMLDivElement>(null);
+    const scrollIndicatorRef = useRef<HTMLDivElement>(null);
+
+    useGSAP(() => {
+        const tl = gsap.timeline({ defaults: { ease: "power3.out", duration: 1 } });
+
+        tl.from(titleRef.current, {
+            y: 50,
+            opacity: 0,
+        })
+            .from(textRef.current, {
+                y: 30,
+                opacity: 0,
+            }, "-=0.6")
+            .from(buttonsRef.current?.children ?? [], {
+                y: 20,
+                opacity: 0,
+                stagger: 0.1,
+            }, "-=0.6")
+            .from(scrollIndicatorRef.current, {
+                opacity: 0,
+                y: -20,
+            }, "-=0.4");
+
+        // Floating animation for scroll indicator
+        gsap.to(scrollIndicatorRef.current, {
+            y: 10,
+            duration: 1.5,
+            repeat: -1,
+            yoyo: true,
+            ease: "power1.inOut"
+        });
+    }, { scope: container });
+
     return (
-        <section className="relative h-screen w-full flex items-center justify-center overflow-hidden bg-background">
+        <section ref={container} className="relative h-screen w-full flex items-center justify-center overflow-hidden bg-background">
             <Spotlight />
             <Hero3D />
 
             <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.8, ease: "easeOut" }}
-                >
+                <div ref={titleRef}>
                     <h1 className="text-5xl md:text-7xl font-bold tracking-tighter mb-6 min-h-[1.2em]">
                         <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary via-secondary to-accent">
                             <GlitchText text="Innovate." />
@@ -73,22 +81,18 @@ export default function Hero() {
                             <GlitchText text="Scale." />
                         </span>
                     </h1>
-                </motion.div>
+                </div>
 
-                <motion.p
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
+                <p
+                    ref={textRef}
                     className="text-xl text-gray-400 max-w-2xl mx-auto mb-10"
                 >
                     We build future-ready digital solutions that propel your business forward.
                     From custom software to immersive web experiences.
-                </motion.p>
+                </p>
 
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
+                <div
+                    ref={buttonsRef}
                     className="flex flex-col sm:flex-row items-center justify-center gap-4"
                 >
                     <Magnetic>
@@ -120,21 +124,19 @@ export default function Hero() {
                             Explore Services
                         </Link>
                     </Magnetic>
-                </motion.div>
+                </div>
             </div>
 
             {/* Gradient overlay for better text readability */}
             <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-background/50 pointer-events-none" />
 
             {/* Scroll Indicator */}
-            <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1, y: [0, 10, 0] }}
-                transition={{ duration: 2, repeat: Infinity, delay: 1 }}
+            <div
+                ref={scrollIndicatorRef}
                 className="absolute bottom-10 left-1/2 -translate-x-1/2 z-20 text-white/50"
             >
                 <ChevronDown className="w-8 h-8" />
-            </motion.div>
+            </div>
         </section>
     );
 }

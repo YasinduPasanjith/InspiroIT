@@ -1,10 +1,11 @@
 "use client";
 
 import SectionWrapper from "@/components/layout/SectionWrapper";
-import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { Code, Layout, Smartphone, MousePointer2, PenTool, Share2, ArrowRight } from "lucide-react";
 import React, { useRef } from "react";
 import Link from "next/link";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
 
 const services = [
     {
@@ -39,53 +40,45 @@ const services = [
     },
 ];
 
-function ServiceCard({ service, index }: { service: typeof services[0]; index: number }) {
+function ServiceCard({ service }: { service: typeof services[0] }) {
     const ref = useRef<HTMLDivElement>(null);
-
-    const x = useMotionValue(0);
-    const y = useMotionValue(0);
-
-    const mouseXSpring = useSpring(x);
-    const mouseYSpring = useSpring(y);
-
-    const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], ["17.5deg", "-17.5deg"]);
-    const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], ["-17.5deg", "17.5deg"]);
 
     const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
         if (!ref.current) return;
 
         const rect = ref.current.getBoundingClientRect();
-
         const width = rect.width;
         const height = rect.height;
 
         const mouseX = e.clientX - rect.left;
         const mouseY = e.clientY - rect.top;
 
-        const xPct = mouseX / width - 0.5;
-        const yPct = mouseY / height - 0.5;
+        const xPct = (mouseX / width - 0.5) * 20; // 20deg max tilt
+        const yPct = (mouseY / height - 0.5) * -20;
 
-        x.set(xPct);
-        y.set(yPct);
+        gsap.to(ref.current, {
+            rotateY: xPct,
+            rotateX: yPct,
+            duration: 0.5,
+            ease: "power2.out",
+        });
     };
 
     const handleMouseLeave = () => {
-        x.set(0);
-        y.set(0);
+        gsap.to(ref.current, {
+            rotateY: 0,
+            rotateX: 0,
+            duration: 0.5,
+            ease: "power2.out",
+        });
     };
 
     return (
-        <motion.div
+        <div
             ref={ref}
             onMouseMove={handleMouseMove}
             onMouseLeave={handleMouseLeave}
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: index * 0.1 }}
             style={{
-                rotateY,
-                rotateX,
                 transformStyle: "preserve-3d",
             }}
             className="relative h-full w-full rounded-xl bg-gradient-to-br from-white/5 to-white/0 p-[1px] group"
@@ -109,55 +102,85 @@ function ServiceCard({ service, index }: { service: typeof services[0]; index: n
                     Learn more <MousePointer2 className="w-4 h-4 ml-2" />
                 </div>
             </div>
-        </motion.div>
+        </div>
     );
 }
 
 export default function Services() {
+    const container = useRef<HTMLDivElement>(null);
+    const headerRef = useRef<HTMLDivElement>(null);
+    const cardsRef = useRef<HTMLDivElement>(null);
+    const footerRef = useRef<HTMLDivElement>(null);
+
+    useGSAP(() => {
+        // Header animation
+        gsap.from(headerRef.current, {
+            scrollTrigger: {
+                trigger: headerRef.current,
+                start: "top 85%",
+            },
+            y: 30,
+            opacity: 0,
+            duration: 1,
+            ease: "power3.out",
+        });
+
+        // Cards staggered entrance
+        gsap.from(cardsRef.current?.children ?? [], {
+            scrollTrigger: {
+                trigger: cardsRef.current,
+                start: "top 80%",
+            },
+            y: 50,
+            opacity: 0,
+            duration: 0.8,
+            stagger: 0.1,
+            ease: "power2.out",
+        });
+
+        // CTA button animation
+        gsap.from(footerRef.current, {
+            scrollTrigger: {
+                trigger: footerRef.current,
+                start: "top 90%",
+            },
+            scale: 0.9,
+            opacity: 0,
+            duration: 1,
+            ease: "back.out(1.7)",
+        });
+    }, { scope: container });
+
     return (
         <SectionWrapper id="services">
-            <div className="text-center mb-16">
-                <motion.h2
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    className="text-4xl md:text-5xl font-bold mb-4"
-                >
-                    Our <span className="text-secondary">Services</span>
-                </motion.h2>
-                <motion.p
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: 0.2 }}
-                    className="text-gray-400 max-w-2xl mx-auto"
-                >
-                    Comprehensive IT solutions designed to elevate your business.
-                </motion.p>
-            </div>
+            <div ref={container}>
+                <div ref={headerRef} className="text-center mb-16">
+                    <h2 className="text-4xl md:text-5xl font-bold mb-4">
+                        Our <span className="text-secondary">Services</span>
+                    </h2>
+                    <p className="text-gray-400 max-w-2xl mx-auto">
+                        Comprehensive IT solutions designed to elevate your business.
+                    </p>
+                </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 perspective-1000 mb-16">
-                {services.map((service, index) => (
-                    <ServiceCard key={index} service={service} index={index} />
-                ))}
-            </div>
+                <div ref={cardsRef} className="grid grid-cols-1 md:grid-cols-3 gap-8 perspective-1000 mb-16">
+                    {services.map((service, index) => (
+                        <ServiceCard key={index} service={service} />
+                    ))}
+                </div>
 
-            <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                className="flex justify-center"
-            >
-                <Link
-                    href="/packages"
-                    className="group relative px-10 py-4 bg-gradient-to-r from-primary to-secondary text-white rounded-full font-bold overflow-hidden transition-all hover:scale-105 hover:shadow-[0_0_30px_rgba(112,0,255,0.4)]"
-                >
-                    <span className="relative z-10 flex items-center gap-2">
-                        View All Packages <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
-                    </span>
-                    <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity" />
-                </Link>
-            </motion.div>
+                <div ref={footerRef} className="flex justify-center">
+                    <Link
+                        href="/packages"
+                        className="group relative px-10 py-4 bg-gradient-to-r from-primary to-secondary text-white rounded-full font-bold overflow-hidden transition-all hover:scale-105 hover:shadow-[0_0_30px_rgba(112,0,255,0.4)]"
+                    >
+                        <span className="relative z-10 flex items-center gap-2">
+                            View All Packages <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
+                        </span>
+                        <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity" />
+                    </Link>
+                </div>
+            </div>
         </SectionWrapper>
     );
 }

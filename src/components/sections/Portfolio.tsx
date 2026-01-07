@@ -1,10 +1,11 @@
 "use client";
 
-import React, { memo } from "react";
+import React, { memo, useRef } from "react";
 import SectionWrapper from "@/components/layout/SectionWrapper";
-import { motion, type Variants } from "framer-motion";
 import { ExternalLink, Github, Sparkles } from "lucide-react";
 import Image from "next/image";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
 
 type Project = {
   title: string;
@@ -73,46 +74,18 @@ const projects: Project[] = [
   },
 ];
 
-// Framer Motion variants (reused by all cards)
-const cardVariants: Variants = {
-  hidden: { opacity: 0, y: 24, scale: 0.97 },
-  visible: (custom) => {
-    const index = typeof custom === "number" ? custom : 0;
-    return {
-      opacity: 1,
-      y: 0,
-      scale: 1,
-      transition: {
-        duration: 0.45,
-        delay: index * 0.06,
-        ease: "easeOut",
-      },
-    };
-  },
-};
-
-type ProjectCardProps = {
-  project: Project;
-  index: number;
-};
-
 // Helper to check if link is valid
 const hasValidLink = (url?: string) =>
   url && url.trim() !== "" && url.trim() !== "#";
 
 // Memoized card → avoids re-render unless props change
-const ProjectCard = memo(function ProjectCard({ project, index }: ProjectCardProps) {
+const ProjectCard = memo(function ProjectCard({ project, index }: { project: Project; index: number }) {
   const hasLive = hasValidLink(project.live);
   const hasGithub = hasValidLink(project.github);
 
   return (
-    <motion.div
-      custom={index}
-      initial="hidden"
-      whileInView="visible"
-      viewport={{ once: true, amount: 0.25 }}
-      variants={cardVariants}
-      className="group relative h-80 overflow-hidden rounded-3xl border border-white/5 bg-gradient-to-b from-white/5 via-white/0 to-white/5 p-[1px]"
+    <div
+      className="project-card group relative h-80 overflow-hidden rounded-3xl border border-white/5 bg-gradient-to-b from-white/5 via-white/0 to-white/5 p-[1px]"
     >
       <div className="relative h-full w-full overflow-hidden rounded-3xl bg-black/80">
         {/* Image */}
@@ -203,60 +176,82 @@ const ProjectCard = memo(function ProjectCard({ project, index }: ProjectCardPro
       <div className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-400 group-hover:opacity-100">
         <div className="absolute -inset-24 bg-radial from-primary/18 via-transparent to-transparent blur-3xl" />
       </div>
-    </motion.div>
+    </div>
   );
 });
 
 export default function Portfolio() {
+  const container = useRef<HTMLDivElement>(null);
+  const headerRef = useRef<HTMLDivElement>(null);
+  const titleRef = useRef<HTMLHeadingElement>(null);
+  const badgeRef = useRef<HTMLDivElement>(null);
+  const descRef = useRef<HTMLParagraphElement>(null);
+  const gridRef = useRef<HTMLDivElement>(null);
+
+  useGSAP(() => {
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: container.current,
+        start: "top 80%",
+      }
+    });
+
+    tl.from(badgeRef.current, { y: 10, opacity: 0, duration: 0.6 })
+      .from(titleRef.current, { y: 20, opacity: 0, duration: 0.8 }, "-=0.4")
+      .from(descRef.current, { y: 20, opacity: 0, duration: 0.8 }, "-=0.6")
+      .from(".project-card", {
+        y: 40,
+        opacity: 0,
+        scale: 0.95,
+        duration: 0.8,
+        stagger: 0.1,
+        ease: "power2.out"
+      }, "-=0.6");
+  }, { scope: container });
+
   return (
     <SectionWrapper id="portfolio" className="relative overflow-hidden bg-black">
-      {/* Background decoration */}
-      <div className="pointer-events-none absolute inset-0">
-        <div className="absolute -top-32 -right-20 h-72 w-72 rounded-full bg-primary/20 blur-3xl" />
-        <div className="absolute -bottom-40 -left-10 h-80 w-80 rounded-full bg-emerald-500/10 blur-3xl" />
-        <div className="absolute inset-0 opacity-20 [background-image:radial-gradient(circle_at_1px_1px,#111827_1px,transparent_0)] [background-size:24px_24px]" />
-      </div>
+      <div ref={container} className="relative z-10">
+        {/* Background decoration */}
+        <div className="pointer-events-none absolute inset-0">
+          <div className="absolute -top-32 -right-20 h-72 w-72 rounded-full bg-primary/20 blur-3xl" />
+          <div className="absolute -bottom-40 -left-10 h-80 w-80 rounded-full bg-emerald-500/10 blur-3xl" />
+          <div className="absolute inset-0 opacity-20 [background-image:radial-gradient(circle_at_1px_1px,#111827_1px,transparent_0)] [background-size:24px_24px]" />
+        </div>
 
-      <div className="relative z-10">
         {/* Header */}
-        <div className="mb-16 text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 8 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.5 }}
+        <div ref={headerRef} className="mb-16 text-center">
+          <div
+            ref={badgeRef}
             className="mx-auto inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1 text-xs font-medium uppercase tracking-[0.2em] text-gray-300"
           >
             <Sparkles className="h-3 w-3 text-primary" />
             Selected Work
-          </motion.div>
+          </div>
 
-          <motion.h2
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
+          <h2
+            ref={titleRef}
             className="mt-6 text-4xl font-bold md:text-5xl"
           >
             Featured{" "}
             <span className="bg-gradient-to-r from-primary to-emerald-400 bg-clip-text text-transparent">
               Projects
             </span>
-          </motion.h2>
+          </h2>
 
-          <motion.p
-            initial={{ opacity: 0, y: 12 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
+          <p
+            ref={descRef}
             className="mt-4 mx-auto max-w-2xl text-sm text-gray-400 md:text-base"
           >
             A curated snapshot of products, platforms, and experiments — blending{" "}
             <span className="font-medium text-gray-200">clean UX</span>,{" "}
             <span className="font-medium text-gray-200">solid engineering</span>, and{" "}
             <span className="font-medium text-gray-200">real-world impact</span>.
-          </motion.p>
+          </p>
         </div>
 
         {/* 3×2 Grid */}
-        <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
+        <div ref={gridRef} className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
           {projects.map((project, index) => (
             <ProjectCard key={project.title} project={project} index={index} />
           ))}
