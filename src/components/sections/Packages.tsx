@@ -201,7 +201,7 @@ export default function Packages() {
     const gridRef = useRef<HTMLDivElement>(null);
 
     useGSAP(() => {
-        // Initial entrance
+        // Initial entrance for header
         gsap.from(headerRef.current, {
             scrollTrigger: {
                 trigger: headerRef.current,
@@ -212,26 +212,13 @@ export default function Packages() {
             duration: 1,
             ease: "power3.out",
         });
-
-        // Staggered cards
-        gsap.from(".package-card", {
-            scrollTrigger: {
-                trigger: gridRef.current,
-                start: "top 80%",
-            },
-            y: 30,
-            opacity: 0,
-            duration: 0.8,
-            stagger: 0.1,
-            ease: "power2.out",
-        });
     }, { scope: container });
 
     useGSAP(() => {
-        // Animation when category changes
+        // Animation when category changes (also runs on mount)
         gsap.fromTo(".package-card",
-            { opacity: 0, x: 20 },
-            { opacity: 1, x: 0, duration: 0.5, stagger: 0.1, ease: "power2.out" }
+            { opacity: 0, y: 30 },
+            { opacity: 1, y: 0, duration: 0.8, stagger: 0.1, ease: "power2.out", overwrite: true }
         );
     }, { dependencies: [activeCategory], scope: container });
 
