@@ -60,7 +60,7 @@ export default function Navbar() {
                     <div className="flex-shrink-0">
                         <Link href="/" className="flex items-center gap-2">
                             <Image
-                                src="/logo.png"
+                                src="/images/logo.png"
                                 alt="InspiroIT Logo"
                                 width={500}
                                 height={500}

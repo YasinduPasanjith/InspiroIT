@@ -21,19 +21,19 @@ const projects: Project[] = [
   {
     title: "FinTech Dashboard",
     category: "Web App",
-    image: "/yasindu_portfolio.png",
+    image: "/images/yasindu_portfolio.png",
     description: "Real-time financial data visualization platform for modern finance teams.",
     tech: ["Next.js", "Tailwind", "Framer Motion"],
     live: "https://yasindupasanjith.vercel.app/",
     github: "#",
   },
   {
-    title: "E-Commerce AI",
+    title: "AI- Powered Resume Analyzer",
     category: "AI Solution",
-    image: "https://i.pinimg.com/736x/72/f2/63/72f263964ad7d25c06b4f5d52f771919.jpg",
+    image: "/images/resumeAnalyzer.png",
     description: "AI-powered recommendation engine that boosts cart value and retention.",
     tech: ["Python", "TensorFlow", "Node.js"],
-    live: "#",
+    live: "https://resume-insight-five.vercel.app/",
     github: "#",
   },
   {
