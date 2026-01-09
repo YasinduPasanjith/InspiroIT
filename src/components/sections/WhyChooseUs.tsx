@@ -1,8 +1,10 @@
 "use client";
 
+import { useRef } from "react";
 import SectionWrapper from "@/components/layout/SectionWrapper";
-import { motion } from "framer-motion";
 import { CheckCircle2, Zap, Shield, Rocket } from "lucide-react";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
 
 const features = [
     {
@@ -28,14 +30,40 @@ const features = [
 ];
 
 export default function WhyChooseUs() {
+    const container = useRef<HTMLDivElement>(null);
+    const textContentRef = useRef<HTMLDivElement>(null);
+    const visualRef = useRef<HTMLDivElement>(null);
+
+    useGSAP(() => {
+        // Text and features reveal
+        gsap.from(textContentRef.current, {
+            scrollTrigger: {
+                trigger: textContentRef.current,
+                start: "top 80%",
+            },
+            x: -50,
+            opacity: 0,
+            duration: 1,
+            ease: "power3.out",
+        });
+
+        // Visual element reveal
+        gsap.from(visualRef.current, {
+            scrollTrigger: {
+                trigger: visualRef.current,
+                start: "top 80%",
+            },
+            scale: 0.8,
+            opacity: 0,
+            duration: 1,
+            ease: "back.out(1.7)",
+        });
+    }, { scope: container });
+
     return (
         <SectionWrapper id="why-us" className="bg-muted/30">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-                <motion.div
-                    initial={{ opacity: 0, x: -50 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true }}
-                >
+            <div ref={container} className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                <div ref={textContentRef}>
                     <h2 className="text-4xl md:text-5xl font-bold mb-6">
                         Why Choose <span className="text-secondary">inspiroIT?</span>
                     </h2>
@@ -55,12 +83,10 @@ export default function WhyChooseUs() {
                             </div>
                         ))}
                     </div>
-                </motion.div>
+                </div>
 
-                <motion.div
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    whileInView={{ opacity: 1, scale: 1 }}
-                    viewport={{ once: true }}
+                <div
+                    ref={visualRef}
                     className="relative h-[400px] w-full rounded-2xl overflow-hidden bg-gradient-to-br from-primary/20 to-secondary/20 border border-white/10 flex items-center justify-center"
                 >
                     {/* Abstract visual representation */}
@@ -72,7 +98,7 @@ export default function WhyChooseUs() {
                         <h3 className="text-3xl font-bold text-white mb-2">100%</h3>
                         <p className="text-gray-300">Client Satisfaction</p>
                     </div>
-                </motion.div>
+                </div>
             </div>
         </SectionWrapper>
     );

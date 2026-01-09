@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import SectionWrapper from "@/components/layout/SectionWrapper";
-import { motion, AnimatePresence } from "framer-motion";
 import { Check, Sparkles, Code, Smartphone, Share2, Palette } from "lucide-react";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
 
 const categories = [
     { id: "web", name: "Web Development", icon: Code },
@@ -195,84 +196,105 @@ const packagesData = {
 
 export default function Packages() {
     const [activeCategory, setActiveCategory] = useState("web");
+    const container = useRef<HTMLDivElement>(null);
+    const headerRef = useRef<HTMLDivElement>(null);
+    const gridRef = useRef<HTMLDivElement>(null);
+
+    useGSAP(() => {
+        // Initial entrance
+        gsap.from(headerRef.current, {
+            scrollTrigger: {
+                trigger: headerRef.current,
+                start: "top 85%",
+            },
+            y: 20,
+            opacity: 0,
+            duration: 1,
+            ease: "power3.out",
+        });
+
+        // Staggered cards
+        gsap.from(".package-card", {
+            scrollTrigger: {
+                trigger: gridRef.current,
+                start: "top 80%",
+            },
+            y: 30,
+            opacity: 0,
+            duration: 0.8,
+            stagger: 0.1,
+            ease: "power2.out",
+        });
+    }, { scope: container });
+
+    useGSAP(() => {
+        // Animation when category changes
+        gsap.fromTo(".package-card",
+            { opacity: 0, x: 20 },
+            { opacity: 1, x: 0, duration: 0.5, stagger: 0.1, ease: "power2.out" }
+        );
+    }, { dependencies: [activeCategory], scope: container });
 
     return (
         <SectionWrapper id="packages" className="relative overflow-hidden">
-            {/* Background decoration */}
-            <div className="pointer-events-none absolute inset-0">
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[500px] w-[500px] rounded-full bg-primary/5 blur-[120px]" />
-            </div>
-
-            <div className="relative z-10">
-                {/* Header */}
-                <div className="mb-12 text-center">
-                    <motion.div
-                        initial={{ opacity: 0, y: 8 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        className="mx-auto inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1 text-xs font-medium uppercase tracking-[0.2em] text-gray-300"
-                    >
-                        <Sparkles className="h-3 w-3 text-primary" />
-                        Pricing Plans
-                    </motion.div>
-
-                    <motion.h2
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        className="mt-6 text-4xl font-bold md:text-5xl"
-                    >
-                        Choose the Right{" "}
-                        <span className="bg-gradient-to-r from-primary to-emerald-400 bg-clip-text text-transparent">
-                            Package
-                        </span>
-                    </motion.h2>
-
-                    <motion.p
-                        initial={{ opacity: 0, y: 12 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        className="mt-4 mx-auto max-w-2xl text-sm text-gray-400 md:text-base"
-                    >
-                        Explore our specialized pricing tiers designed to scale with your business goals.
-                    </motion.p>
+            <div ref={container}>
+                {/* Background decoration */}
+                <div className="pointer-events-none absolute inset-0">
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[500px] w-[500px] rounded-full bg-primary/5 blur-[120px]" />
                 </div>
 
-                {/* Category Selection Tabs */}
-                <div className="flex flex-wrap justify-center gap-4 mb-16 px-4">
-                    {categories.map((category) => (
-                        <button
-                            key={category.id}
-                            onClick={() => setActiveCategory(category.id)}
-                            className={`flex items-center gap-2 px-6 py-3 rounded-full text-sm font-semibold transition-all duration-300 border ${activeCategory === category.id
+                <div className="relative z-10">
+                    {/* Header */}
+                    <div ref={headerRef} className="mb-12 text-center">
+                        <div
+                            className="mx-auto inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1 text-xs font-medium uppercase tracking-[0.2em] text-gray-300"
+                        >
+                            <Sparkles className="h-3 w-3 text-primary" />
+                            Pricing Plans
+                        </div>
+
+                        <h2
+                            className="mt-6 text-4xl font-bold md:text-5xl"
+                        >
+                            Choose the Right{" "}
+                            <span className="bg-gradient-to-r from-primary to-emerald-400 bg-clip-text text-transparent">
+                                Package
+                            </span>
+                        </h2>
+
+                        <p
+                            className="mt-4 mx-auto max-w-2xl text-sm text-gray-400 md:text-base"
+                        >
+                            Explore our specialized pricing tiers designed to scale with your business goals.
+                        </p>
+                    </div>
+
+                    {/* Category Selection Tabs */}
+                    <div className="flex flex-wrap justify-center gap-4 mb-16 px-4">
+                        {categories.map((category) => (
+                            <button
+                                key={category.id}
+                                onClick={() => setActiveCategory(category.id)}
+                                className={`flex items-center gap-2 px-6 py-3 rounded-full text-sm font-semibold transition-all duration-300 border ${activeCategory === category.id
                                     ? "bg-primary border-primary text-white shadow-lg shadow-primary/20"
                                     : "bg-white/5 border-white/10 text-gray-400 hover:bg-white/10 hover:border-white/20"
-                                }`}
-                        >
-                            <category.icon className="w-4 h-4" />
-                            {category.name}
-                        </button>
-                    ))}
-                </div>
+                                    }`}
+                            >
+                                <category.icon className="w-4 h-4" />
+                                {category.name}
+                            </button>
+                        ))}
+                    </div>
 
-                {/* Pricing Cards */}
-                <AnimatePresence mode="wait">
-                    <motion.div
-                        key={activeCategory}
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: -20 }}
-                        transition={{ duration: 0.3 }}
+                    {/* Pricing Cards */}
+                    <div
+                        ref={gridRef}
                         className="grid grid-cols-1 gap-8 md:grid-cols-3"
                     >
-                        {packagesData[activeCategory as keyof typeof packagesData].map((pkg, index) => (
-                            <motion.div
+                        {packagesData[activeCategory as keyof typeof packagesData].map((pkg) => (
+                            <div
                                 key={pkg.name}
-                                initial={{ opacity: 0, y: 30 }}
-                                whileInView={{ opacity: 1, y: 0 }}
-                                viewport={{ once: true }}
-                                transition={{ delay: index * 0.1, duration: 0.5 }}
-                                className={`relative flex flex-col rounded-3xl border border-white/10 bg-card/50 backdrop-blur-sm p-8 transition-all hover:border-primary/50 group ${pkg.highlight ? "ring-2 ring-primary ring-offset-4 ring-offset-black scale-105 z-10 shadow-2xl shadow-primary/20" : ""
+                                className={`package-card relative flex flex-col rounded-3xl border border-white/10 bg-card/50 backdrop-blur-sm p-8 transition-all hover:border-primary/50 group ${pkg.highlight ? "ring-2 ring-primary ring-offset-4 ring-offset-black scale-105 z-10 shadow-2xl shadow-primary/20" : ""
                                     }`}
                             >
                                 {pkg.highlight && (
@@ -307,15 +329,15 @@ export default function Packages() {
                                 </div>
 
                                 <button className={`w-full rounded-xl py-4 text-sm font-bold transition-all duration-300 ${pkg.highlight
-                                        ? "bg-gradient-to-r from-primary to-emerald-400 text-black hover:opacity-90 hover:scale-[1.02]"
-                                        : "bg-white/10 text-white hover:bg-white/20"
+                                    ? "bg-gradient-to-r from-primary to-emerald-400 text-black hover:opacity-90 hover:scale-[1.02]"
+                                    : "bg-white/10 text-white hover:bg-white/20"
                                     }`}>
                                     Get Started
                                 </button>
-                            </motion.div>
+                            </div>
                         ))}
-                    </motion.div>
-                </AnimatePresence>
+                    </div>
+                </div>
             </div>
         </SectionWrapper>
     );
