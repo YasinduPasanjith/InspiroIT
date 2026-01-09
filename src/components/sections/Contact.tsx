@@ -1,14 +1,45 @@
 "use client";
 
+import { useRef } from "react";
 import SectionWrapper from "@/components/layout/SectionWrapper";
-import { motion } from "framer-motion";
 import { Mail, MapPin, Phone, Send } from "lucide-react";
 import { sendEmail } from "@/actions/sendEmail";
 import { toast } from "sonner";
 import { useState } from "react";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
 
 export default function Contact() {
     const [pending, setPending] = useState(false);
+    const container = useRef<HTMLDivElement>(null);
+    const leftColRef = useRef<HTMLDivElement>(null);
+    const rightColRef = useRef<HTMLDivElement>(null);
+
+    useGSAP(() => {
+        // Left column reveal
+        gsap.from(leftColRef.current, {
+            scrollTrigger: {
+                trigger: leftColRef.current,
+                start: "top 80%",
+            },
+            x: -50,
+            opacity: 0,
+            duration: 1,
+            ease: "power3.out",
+        });
+
+        // Right column (form) reveal
+        gsap.from(rightColRef.current, {
+            scrollTrigger: {
+                trigger: rightColRef.current,
+                start: "top 80%",
+            },
+            x: 50,
+            opacity: 0,
+            duration: 1,
+            ease: "power3.out",
+        });
+    }, { scope: container });
 
     const handleSubmit = async (formData: FormData) => {
         setPending(true);
@@ -27,12 +58,8 @@ export default function Contact() {
 
     return (
         <SectionWrapper id="contact" className="bg-black">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
-                <motion.div
-                    initial={{ opacity: 0, x: -50 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true }}
-                >
+            <div ref={container} className="grid grid-cols-1 lg:grid-cols-2 gap-16">
+                <div ref={leftColRef}>
                     <h2 className="text-4xl md:text-5xl font-bold mb-6">
                         Let's <span className="text-primary">Connect</span>
                     </h2>
@@ -69,12 +96,10 @@ export default function Contact() {
                             </div>
                         </div>
                     </div>
-                </motion.div>
+                </div>
 
-                <motion.div
-                    initial={{ opacity: 0, x: 50 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true }}
+                <div
+                    ref={rightColRef}
                     className="bg-card p-8 rounded-2xl border border-white/10"
                 >
                     <form action={handleSubmit} className="space-y-6">
@@ -132,7 +157,7 @@ export default function Contact() {
                             {pending ? "Sending..." : "Send Message"} <Send className="w-4 h-4" />
                         </button>
                     </form>
-                </motion.div>
+                </div>
             </div>
         </SectionWrapper>
     );

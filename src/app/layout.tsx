@@ -11,6 +11,7 @@ export const metadata: Metadata = {
 
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import GSAPConfig from "@/components/GSAPConfig";
 import { Toaster } from "sonner";
 
 export default function RootLayout({
@@ -21,6 +22,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="scroll-smooth">
       <body className={inter.className}>
+        <GSAPConfig />
         <Navbar />
         {children}
         <Footer />

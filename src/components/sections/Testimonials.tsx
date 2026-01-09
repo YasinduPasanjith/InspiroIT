@@ -1,8 +1,10 @@
 "use client";
 
+import { useRef } from "react";
 import SectionWrapper from "@/components/layout/SectionWrapper";
-import { motion } from "framer-motion";
 import { Quote } from "lucide-react";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
 
 const testimonials = [
     {
@@ -26,47 +28,71 @@ const testimonials = [
 ];
 
 export default function Testimonials() {
+    const container = useRef<HTMLDivElement>(null);
+    const headerRef = useRef<HTMLDivElement>(null);
+    const gridRef = useRef<HTMLDivElement>(null);
+
+    useGSAP(() => {
+        // Header reveal
+        gsap.from(headerRef.current, {
+            scrollTrigger: {
+                trigger: headerRef.current,
+                start: "top 85%",
+            },
+            y: 20,
+            opacity: 0,
+            duration: 1,
+            ease: "power3.out",
+        });
+
+        // Testimonials staggered entrance
+        gsap.from(gridRef.current?.children ?? [], {
+            scrollTrigger: {
+                trigger: gridRef.current,
+                start: "top 80%",
+            },
+            y: 30,
+            opacity: 0,
+            duration: 0.8,
+            stagger: 0.1,
+            ease: "power2.out",
+        });
+    }, { scope: container });
+
     return (
         <SectionWrapper id="testimonials">
-            <div className="text-center mb-16">
-                <motion.h2
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    className="text-4xl md:text-5xl font-bold mb-4"
-                >
-                    Client <span className="text-primary">Testimonials</span>
-                </motion.h2>
-                <p className="text-gray-400 max-w-2xl mx-auto">
-                    Don't just take our word for it. Here's what our clients have to say.
-                </p>
-            </div>
+            <div ref={container}>
+                <div ref={headerRef} className="text-center mb-16">
+                    <h2 className="text-4xl md:text-5xl font-bold mb-4">
+                        Client <span className="text-primary">Testimonials</span>
+                    </h2>
+                    <p className="text-gray-400 max-w-2xl mx-auto">
+                        Don't just take our word for it. Here's what our clients have to say.
+                    </p>
+                </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                {testimonials.map((testimonial, index) => (
-                    <motion.div
-                        key={index}
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.5, delay: index * 0.1 }}
-                        className="bg-card/50 backdrop-blur-sm p-8 rounded-2xl border border-white/5 relative"
-                    >
-                        <Quote className="absolute top-8 right-8 w-8 h-8 text-primary/20" />
-                        <p className="text-gray-300 mb-6 relative z-10">"{testimonial.content}"</p>
-                        <div className="flex items-center gap-4">
-                            <img
-                                src={testimonial.image}
-                                alt={testimonial.name}
-                                className="w-12 h-12 rounded-full object-cover border-2 border-primary"
-                            />
-                            <div>
-                                <h4 className="font-bold text-white">{testimonial.name}</h4>
-                                <p className="text-sm text-gray-400">{testimonial.role}</p>
+                <div ref={gridRef} className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    {testimonials.map((testimonial, index) => (
+                        <div
+                            key={index}
+                            className="bg-card/50 backdrop-blur-sm p-8 rounded-2xl border border-white/5 relative"
+                        >
+                            <Quote className="absolute top-8 right-8 w-8 h-8 text-primary/20" />
+                            <p className="text-gray-300 mb-6 relative z-10">"{testimonial.content}"</p>
+                            <div className="flex items-center gap-4">
+                                <img
+                                    src={testimonial.image}
+                                    alt={testimonial.name}
+                                    className="w-12 h-12 rounded-full object-cover border-2 border-primary"
+                                />
+                                <div>
+                                    <h4 className="font-bold text-white">{testimonial.name}</h4>
+                                    <p className="text-sm text-gray-400">{testimonial.role}</p>
+                                </div>
                             </div>
                         </div>
-                    </motion.div>
-                ))}
+                    ))}
+                </div>
             </div>
         </SectionWrapper>
     );

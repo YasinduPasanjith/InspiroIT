@@ -1,24 +1,27 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Menu, X } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import Magnetic from "@/components/ui/Magnetic";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
 
 const navLinks = [
     { name: "Home", href: "/" },
-    { name: "Services", href: "#services" },
-    { name: "Portfolio", href: "#portfolio" },
-    { name: "About", href: "#about" },
-    { name: "Contact", href: "#contact" },
+    { name: "Services", href: "/#services" },
+    { name: "Portfolio", href: "/#portfolio" },
+    { name: "Packages", href: "/packages" },
+    { name: "About", href: "/#about" },
+    { name: "Contact", href: "/#contact" },
 ];
 
 export default function Navbar() {
     const [isOpen, setIsOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);
+    const menuRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         const handleScroll = () => {
@@ -27,6 +30,21 @@ export default function Navbar() {
         window.addEventListener("scroll", handleScroll);
         return () => window.removeEventListener("scroll", handleScroll);
     }, []);
+
+    useGSAP(() => {
+        if (isOpen) {
+            gsap.fromTo(menuRef.current,
+                { height: 0, opacity: 0, y: -20 },
+                { height: "auto", opacity: 1, y: 0, duration: 0.4, ease: "power3.out" }
+            );
+            gsap.fromTo(".mobile-nav-link",
+                { x: -20, opacity: 0 },
+                { x: 0, opacity: 1, duration: 0.3, stagger: 0.1, delay: 0.1 }
+            );
+        } else if (menuRef.current) {
+            gsap.to(menuRef.current, { height: 0, opacity: 0, y: -20, duration: 0.3, ease: "power3.in" });
+        }
+    }, { dependencies: [isOpen], scope: menuRef });
 
     return (
         <nav
@@ -42,7 +60,7 @@ export default function Navbar() {
                     <div className="flex-shrink-0">
                         <Link href="/" className="flex items-center gap-2">
                             <Image
-                                src="/logo.png"
+                                src="/images/logo.png"
                                 alt="InspiroIT Logo"
                                 width={500}
                                 height={500}
@@ -80,36 +98,27 @@ export default function Navbar() {
                 </div>
             </div>
 
-            <AnimatePresence>
-                {isOpen && (
-                    <motion.div
-                        initial={{ opacity: 0, height: 0, y: -20 }}
-                        animate={{ opacity: 1, height: "auto", y: 0 }}
-                        exit={{ opacity: 0, height: 0, y: -20 }}
-                        transition={{ duration: 0.3, ease: "easeInOut" }}
-                        className="md:hidden bg-background/95 backdrop-blur-xl border-t border-white/10 overflow-hidden rounded-b-2xl"
-                    >
-                        <div className="px-4 pt-2 pb-6 space-y-2">
-                            {navLinks.map((link, index) => (
-                                <motion.div
-                                    key={link.name}
-                                    initial={{ opacity: 0, x: -20 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    transition={{ delay: index * 0.1 }}
-                                >
-                                    <Link
-                                        href={link.href}
-                                        onClick={() => setIsOpen(false)}
-                                        className="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-white hover:bg-white/10 transition-all"
-                                    >
-                                        {link.name}
-                                    </Link>
-                                </motion.div>
-                            ))}
-                        </div>
-                    </motion.div>
+            <div
+                ref={menuRef}
+                className={cn(
+                    "md:hidden bg-background/95 backdrop-blur-xl border-t border-white/10 overflow-hidden rounded-b-2xl",
+                    !isOpen && "pointer-events-none h-0 opacity-0"
                 )}
-            </AnimatePresence>
+            >
+                <div className="px-4 pt-2 pb-6 space-y-2">
+                    {navLinks.map((link) => (
+                        <div key={link.name} className="mobile-nav-link">
+                            <Link
+                                href={link.href}
+                                onClick={() => setIsOpen(false)}
+                                className="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-white hover:bg-white/10 transition-all"
+                            >
+                                {link.name}
+                            </Link>
+                        </div>
+                    ))}
+                </div>
+            </div>
         </nav>
     );
 }
